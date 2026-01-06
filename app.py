@@ -120,6 +120,22 @@ with tab2:
     if os.path.exists(DATA_PATH):
         df_dash = pd.read_csv(DATA_PATH)
         
+        # --- TRADUÇÃO DOS DADOS (Visualização) ---
+        # 1. Dicionário para traduzir as categorias de obesidade
+        mapa_obesidade = {
+            'Insufficient_Weight': 'Abaixo do Peso',
+            'Normal_Weight': 'Peso Normal',
+            'Overweight_Level_I': 'Sobrepeso Nível I',
+            'Overweight_Level_II': 'Sobrepeso Nível II',
+            'Obesity_Type_I': 'Obesidade Tipo I',
+            'Obesity_Type_II': 'Obesidade Tipo II',
+            'Obesity_Type_III': 'Obesidade Tipo III'
+        }
+        
+        # 2. Criar uma coluna nova traduzida no DataFrame
+        df_dash['Classificacao_PT'] = df_dash['Obesity'].map(mapa_obesidade)
+        # -----------------------------------------
+
         # Métricas
         c1, c2, c3 = st.columns(3)
         c1.metric("Total de Pacientes", len(df_dash))
@@ -132,17 +148,44 @@ with tab2:
         with col_g1:
             st.subheader("Distribuição de Obesidade")
             fig1, ax1 = plt.subplots(figsize=(6, 4))
-            sns.countplot(y='Obesity', data=df_dash, order=df_dash['Obesity'].value_counts().index, palette='viridis', ax=ax1)
+            
+            # Alteração: Usamos a coluna 'Classificacao_PT' no eixo Y
+            sns.countplot(
+                y='Classificacao_PT', 
+                data=df_dash, 
+                order=df_dash['Classificacao_PT'].value_counts().index, 
+                palette='viridis', 
+                ax=ax1
+            )
+            
+            # Alteração: Traduzir títulos dos eixos
+            ax1.set_xlabel("Quantidade de Pacientes")
+            ax1.set_ylabel("") # Remove o label Y para ficar mais limpo
             st.pyplot(fig1)
             
         with col_g2:
             st.subheader("Peso vs Altura")
             fig2, ax2 = plt.subplots(figsize=(6, 4))
-            sns.scatterplot(x='Weight', y='Height', hue='Obesity', data=df_dash, alpha=0.6, ax=ax2)
+            
+            # Alteração: Usamos 'Classificacao_PT' no hue (cores)
+            sns.scatterplot(
+                x='Weight', 
+                y='Height', 
+                hue='Classificacao_PT', 
+                data=df_dash, 
+                alpha=0.6, 
+                ax=ax2
+            )
+            
+            # Alteração: Traduzir títulos dos eixos e legenda
+            ax2.set_xlabel("Peso (kg)")
+            ax2.set_ylabel("Altura (m)")
+            # Move a legenda e traduz o título dela
+            ax2.legend(title="Diagnóstico", fontsize='small')
+            
             st.pyplot(fig2)
     else:
         st.warning(f"Arquivo '{DATA_PATH}' não encontrado. Coloque-o na mesma pasta do script.")
-
 
     with tab3:
         st.header("Relatórios de Inteligência de Dados")
