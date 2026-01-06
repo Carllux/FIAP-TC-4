@@ -27,7 +27,7 @@ st.title("🏥 Sistema de Apoio ao Diagnóstico de Obesidade")
 st.markdown("---")
 
 # Abas
-tab1, tab2 = st.tabs(["🔮 Predição Clínica", "📊 Dashboard Analítico"])
+tab1, tab2, tab3 = st.tabs(["🔮 Predição Clínica", "📊 Dashboard Analítico", "📝 Relatórios e Insights"])
 
 
 with tab1:
@@ -142,3 +142,53 @@ with tab2:
             st.pyplot(fig2)
     else:
         st.warning(f"Arquivo '{DATA_PATH}' não encontrado. Coloque-o na mesma pasta do script.")
+
+
+    with tab3:
+        st.header("Relatórios de Inteligência de Dados")
+        st.markdown("Análise detalhada dos principais fatores de risco identificados pelo modelo.")
+        st.markdown("---")
+
+        # --- Insight 1 ---
+        st.subheader("1. Impacto do Histórico Familiar")
+        # Coloque o nome exato do seu arquivo png abaixo
+        if os.path.exists("grafico_historico.png"):
+            st.image("grafico_historico.png", caption="Correlação entre Histórico e Obesidade", use_container_width=True)
+
+        st.info("""
+        **Insight para a equipe médica:** Pacientes com histórico familiar de sobrepeso têm uma probabilidade drasticamente maior de desenvolver sobrepeso ou obesidade. 
+        A investigação do histórico familiar é um passo de triagem fundamental e de baixo custo.
+        """)
+        st.markdown("---")
+
+        # --- Insight 2 ---
+        st.subheader("2. Atividade Física como Fator de Proteção")
+        if os.path.exists("grafico_atividade.png"):
+            st.image("grafico_atividade.png", caption="Frequência de Atividade Física vs Peso", use_container_width=True)
+
+        st.info("""
+        **Insight para a equipe médica:** A falta de atividade física está fortemente correlacionada com os níveis mais altos de obesidade. 
+        Incentivar a prática de exercícios (mesmo que 1-2 dias por semana) pode ser uma das intervenções mais eficazes.
+        """)
+        st.markdown("---")
+
+        # --- Insight 3 ---
+        st.subheader("3. O Transporte Diário Importa")
+        if os.path.exists("grafico_transporte.png"):
+            st.image("grafico_transporte.png", caption="Meio de Transporte vs IMC", use_container_width=True)
+
+        st.info("""
+        **Insight para a equipe médica:** O sedentarismo associado ao uso de Automóvel e Transporte Público é um fator de risco visível. 
+        Pacientes que utilizam esses meios podem precisar de atenção extra e incentivo a caminhadas ou outras atividades compensatórias.
+        """)
+        st.markdown("---")
+
+        # --- Insight 4 ---
+        st.subheader("4. Distribuição de Idade por Nível de Obesidade")
+        if os.path.exists("grafico_idade.png"):
+            st.image("grafico_idade.png", caption="Faixa Etária e Classificação", use_container_width=True)
+
+        st.info("""
+        **Insight para a equipe médica:** A idade média tende a ser maior nos grupos com obesidade, sugerindo que o risco aumenta com o envelhecimento. 
+        Programas de prevenção podem ser focados em adultos jovens para evitar a progressão para a obesidade.
+        """)
