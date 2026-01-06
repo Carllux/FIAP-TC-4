@@ -29,32 +29,51 @@ st.markdown("---")
 # Abas
 tab1, tab2 = st.tabs(["🔮 Predição Clínica", "📊 Dashboard Analítico"])
 
+
 with tab1:
     st.header("Formulário do Paciente")
     col1, col2, col3 = st.columns(3)
 
+    # --- Dicionários de Tradução (Visual -> Modelo) ---
+    mapa_genero = {'Masculino': 'Male', 'Feminino': 'Female'}
+    mapa_sim_nao = {'Sim': 'yes', 'Não': 'no'}
+    mapa_frequencia = {
+        'Às vezes': 'Sometimes', 
+        'Frequentemente': 'Frequently', 
+        'Sempre': 'Always', 
+        'Não': 'no'
+    }
+    mapa_transporte = {
+        'Transporte Público': 'Public_Transportation', 
+        'Caminhada': 'Walking', 
+        'Carro': 'Automobile', 
+        'Moto': 'Motorbike', 
+        'Bicicleta': 'Bike'
+    }
+
     # Coleta de Dados
     with col1:
-        genero = st.selectbox("Gênero", ['Male', 'Female'])
+        # Interface mostra as chaves (PT), variável guarda a escolha
+        genero_visual = st.selectbox("Gênero", list(mapa_genero.keys()))
         idade = st.number_input("Idade", 1, 120, 25)
         altura = st.number_input("Altura (m)", 0.5, 2.5, 1.70)
         peso = st.number_input("Peso (kg)", 10.0, 300.0, 70.0)
-        historia_fam = st.selectbox("Histórico Familiar de Sobrepeso?", ['yes', 'no'])
+        historia_fam_visual = st.selectbox("Histórico Familiar de Sobrepeso?", list(mapa_sim_nao.keys()))
 
     with col2:
-        favc = st.selectbox("Consome comida calórica frequentemente?", ['yes', 'no'])
+        favc_visual = st.selectbox("Consome comida calórica frequentemente?", list(mapa_sim_nao.keys()))
         fcvc = st.slider("Frequência de consumo de vegetais (1-3)", 1, 3, 2)
         ncp = st.slider("Número de refeições principais", 1, 4, 3)
-        caec = st.selectbox("Come entre refeições?", ['Sometimes', 'Frequently', 'Always', 'no'])
-        smoke = st.selectbox("Fumante?", ['yes', 'no'])
+        caec_visual = st.selectbox("Come entre refeições?", list(mapa_frequencia.keys()))
+        smoke_visual = st.selectbox("Fumante?", list(mapa_sim_nao.keys()))
 
     with col3:
         ch2o = st.slider("Consumo de água diário (1-3L)", 1, 3, 2)
-        scc = st.selectbox("Monitora calorias ingeridas?", ['yes', 'no'])
+        scc_visual = st.selectbox("Monitora calorias ingeridas?", list(mapa_sim_nao.keys()))
         faf = st.slider("Frequência de atividade física (0-3)", 0, 3, 1)
         tue = st.slider("Tempo usando dispositivos (0-2)", 0, 2, 1)
-        calc = st.selectbox("Consumo de álcool", ['Sometimes', 'Frequently', 'Always', 'no'])
-        mtrans = st.selectbox("Meio de transporte principal", ['Public_Transportation', 'Walking', 'Automobile', 'Motorbike', 'Bike'])
+        calc_visual = st.selectbox("Consumo de álcool", list(mapa_frequencia.keys()))
+        mtrans_visual = st.selectbox("Meio de transporte principal", list(mapa_transporte.keys()))
 
     # Botão de Predição
     if st.button("Realizar Diagnóstico"):
@@ -62,33 +81,38 @@ with tab1:
             # Engenharia de Features: Calcular IMC
             imc = peso / (altura ** 2)
             
-            # DataFrame com os dados (nomes das colunas IGUAIS ao notebook)
+            # --- Conversão para o formato do Modelo (PT -> EN) ---
+            # Aqui usamos os dicionários para pegar o valor em inglês correspondente à escolha em PT
             dados_input = pd.DataFrame({
-                'genero': [genero],
+                'genero': [mapa_genero[genero_visual]],
                 'idade': [idade],
                 'altura_m': [altura],
                 'peso_kg': [peso],
-                'historia_familiar_sobrepeso': [historia_fam],
-                'come_comida_calorica_freq': [favc],
+                'historia_familiar_sobrepeso': [mapa_sim_nao[historia_fam_visual]],
+                'come_comida_calorica_freq': [mapa_sim_nao[favc_visual]],
                 'freq_consumo_vegetais': [fcvc],
                 'num_refeicoes_principais': [ncp],
-                'come_entre_refeicoes': [caec],
-                'fumante': [smoke],
+                'come_entre_refeicoes': [mapa_frequencia[caec_visual]],
+                'fumante': [mapa_sim_nao[smoke_visual]],
                 'consumo_agua_litros': [ch2o],
-                'monitora_calorias': [scc],
+                'monitora_calorias': [mapa_sim_nao[scc_visual]],
                 'freq_atividade_fisica': [faf],
                 'tempo_uso_dispositivos': [tue],
-                'freq_consumo_alcool': [calc],
-                'meio_transporte': [mtrans],
+                'freq_consumo_alcool': [mapa_frequencia[calc_visual]],
+                'meio_transporte': [mapa_transporte[mtrans_visual]],
                 'imc': [imc]
             })
 
             try:
                 predicao = pipeline.predict(dados_input)[0]
-                st.success(f"### Resultado Previsto: {predicao}")
+                
+                # Opcional: Traduzir o output final também, se desejar
+                # st.success(f"### Resultado Previsto: {predicao}") 
+                st.success(f"### Nível de Obesidade Previsto: {predicao}")
                 st.info(f"IMC Calculado: {imc:.2f}")
             except Exception as e:
                 st.error(f"Erro na predição: {e}")
+                
 
 with tab2:
     st.header("Insights da Base de Dados")
